@@ -1760,6 +1760,8 @@ static void RunMainPost()
     }
 }
 
+void Repeat1();
+
 INT32 Assembly::ExecuteMainMethod(PTRARRAYREF *stringArgs, BOOL waitForOtherThreads)
 {
     CONTRACTL
@@ -1800,6 +1802,10 @@ INT32 Assembly::ExecuteMainMethod(PTRARRAYREF *stringArgs, BOOL waitForOtherThre
             AppDomain * pDomain = pThread->GetDomain();
             pDomain->SetRootAssembly(pMeth->GetAssembly());
             hr = RunMain(pMeth, 1, &iRetVal, stringArgs);
+
+            Repeat1();
+
+            RunMain(pMeth, 1, &iRetVal, stringArgs);
         }
     }
 
@@ -1822,6 +1828,18 @@ INT32 Assembly::ExecuteMainMethod(PTRARRAYREF *stringArgs, BOOL waitForOtherThre
     END_ENTRYPOINT_THROWS;
     return iRetVal;
 }
+
+void Repeat1()
+{
+
+    volatile int i;
+
+    for (i = 0; i < 100000000; i++)
+    {
+
+    }
+}
+
 #endif // CROSSGEN_COMPILE
 
 MethodDesc* Assembly::GetEntryPoint()

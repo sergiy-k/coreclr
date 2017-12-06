@@ -53,7 +53,6 @@ public:
 // Each one of these keys produces a method on GCConfig with the name "Get{name}", where {name}
 // is the first parameter of the *_CONFIG macros below.
 #define GC_CONFIGURATION_KEYS \
-  BOOL_CONFIG(ServerGC,     "gcServer",     false, "Whether we should be using Server GC")     \
   BOOL_CONFIG(ConcurrentGC, "gcConcurrent", true,  "Whether we should be using Concurrent GC") \
   BOOL_CONFIG(ConservativeGC, "gcConservative", false, "Enables/Disables conservative GC")     \
   BOOL_CONFIG(ForceCompact, "gcForceCompact", false,                                           \
@@ -109,6 +108,7 @@ GC_CONFIGURATION_KEYS
 #undef INT_CONFIG
 #undef STRING_CONFIG
 
+public: static bool GetServerGC() { return true; };
 public:
 // Flags that may inhabit the number returned for the HeapVerifyLevel config option.
 // Keep this in sync with vm\eeconfig.h if this ever changes.
