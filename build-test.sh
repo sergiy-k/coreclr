@@ -167,9 +167,49 @@ generate_layout()
     fi
 }
 
+declare -a skipCrossGenFiles
+
+function is_skip_crossgen_test {
+    for skip in "${skipCrossGenFiles[@]}"; do
+        if [ "$1" == "$skip" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 precompile_coreroot_fx()
 {
     echo "${__MsgPrefix}Running crossgen on framework assemblies in CORE_ROOT: '${CORE_ROOT}'"
+
+    # Read the exclusion file for this platform
+    skipCrossGenFiles=($(read_array "$(dirname "$0")/skipCrossGenFiles.${__BuildArch}.txt"))
+
+    local overlayDir=$CORE_ROOT
+
+    filesToPrecompile=$(find -L $overlayDir -iname \*.dll -not -iname \*.ni.dll -not -iname \*-ms-win-\* -type f )
+    for fileToPrecompile in ${filesToPrecompile}
+    do
+        local filename=${fileToPrecompile}
+        if is_skip_crossgen_test "$(basename $filename)"; then
+                continue
+        fi
+        echo Precompiling $filename
+        $overlayDir/crossgen /Platform_Assemblies_Paths $overlayDir $filename 1> $filename.stdout 2>$filename.stderr
+        local exitCode=$?
+        if [[ $exitCode != 0 ]]; then
+            if grep -q -e '0x80131018' $filename.stderr; then
+                printf "\n\t$filename is not a managed assembly.\n\n"
+            else
+                echo Unable to precompile $filename.
+                cat $filename.stdout
+                cat $filename.stderr
+                exit $exitCode
+            fi
+        else
+            rm $filename.{stdout,stderr}
+        fi
+    done
 }
 
 generate_testhost()
