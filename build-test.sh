@@ -216,9 +216,13 @@ function is_skip_crossgen_test {
 function read_array {
     local theArray=()
 
+    echo "== 1=="
+    echo "== $1 =="
     if [ ! -f "$1" ]; then
         return
     fi
+
+    echo "== 2 =="
 
     # bash in Mac OS X doesn't support 'readarray', so using alternate way instead.
     # readarray -t theArray < "$1"
@@ -227,6 +231,7 @@ function read_array {
         if [[ $line != "#"* ]]; then
             theArray[${#theArray[@]}]=$line
         fi
+        echo "== $line =="
     done < "$1"
     echo ${theArray[@]}
 }
