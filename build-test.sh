@@ -160,6 +160,16 @@ generate_layout()
         echo "Resolve runtime dependences via $nextCommand"
         eval $nextCommand
     fi
+
+    # Precompile framework assemblies with crossgen if required
+    if [ $__DoCrossgen -ne 0 ]; then
+        precompile_coreroot_fx
+    fi
+}
+
+precompile_coreroot_fx()
+{
+    echo "${__MsgPrefix}Running crossgen on framework assemblies in CORE_ROOT: '${CORE_ROOT}'"
 }
 
 generate_testhost()
@@ -499,6 +509,7 @@ usage()
     echo "generatelayoutonly - only pull down dependencies and build coreroot"
     echo "generatetesthostonly - only pull down dependencies and build coreroot and the CoreFX testhost"
     echo "skiprestorepackages - skip package restore"
+    echo "crossgen - Precompiles the framework managed assemblies in coreroot"
     echo "runtests - run tests after building them"
     echo "bindir - output directory (defaults to $__ProjectRoot/bin)"
     echo "msbuildonunsupportedplatform - build managed binaries even if distro is not officially supported."
@@ -630,6 +641,7 @@ __GenerateLayoutOnly=
 __GenerateTestHostOnly=
 __priority1=
 __BuildTestWrappersOnly=
+__DoCrossgen=0
 CORE_ROOT=
 
 while :; do
@@ -806,6 +818,10 @@ while :; do
 
         skiprestorepackages)
             __SkipRestorePackages=1
+            ;;
+
+        crossgen)
+            __DoCrossgen=1
             ;;
 
         bindir)
