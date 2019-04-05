@@ -167,17 +167,6 @@ generate_layout()
     fi
 }
 
-declare -a skipCrossGenFiles
-
-function is_skip_crossgen_test {
-    for skip in "${skipCrossGenFiles[@]}"; do
-        if [ "$1" == "$skip" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
 precompile_coreroot_fx()
 {
     echo "${__MsgPrefix}Running crossgen on framework assemblies in CORE_ROOT: '${CORE_ROOT}'"
@@ -210,6 +199,36 @@ precompile_coreroot_fx()
             rm $filename.{stdout,stderr}
         fi
     done
+}
+
+declare -a skipCrossGenFiles
+
+function is_skip_crossgen_test {
+    for skip in "${skipCrossGenFiles[@]}"; do
+        if [ "$1" == "$skip" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Get an array of items by reading the specified file line by line.
+function read_array {
+    local theArray=()
+
+    if [ ! -f "$1" ]; then
+        return
+    fi
+
+    # bash in Mac OS X doesn't support 'readarray', so using alternate way instead.
+    # readarray -t theArray < "$1"
+    # Any line that starts with '#' is ignored.
+    while IFS='' read -r line || [ -n "$line" ]; do
+        if [[ $line != "#"* ]]; then
+            theArray[${#theArray[@]}]=$line
+        fi
+    done < "$1"
+    echo ${theArray[@]}
 }
 
 generate_testhost()
