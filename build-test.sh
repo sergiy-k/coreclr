@@ -172,7 +172,7 @@ precompile_coreroot_fx()
     echo "${__MsgPrefix}Running crossgen on framework assemblies in CORE_ROOT: '${CORE_ROOT}'"
 
     # Read the exclusion file for this platform
-    skipCrossGenFiles=($(read_array "$(dirname "$0")/skipCrossGenFiles.${__BuildArch}.txt"))
+    skipCrossGenFiles=($(read_array "$(dirname "$0")/tests/skipCrossGenFiles.${__BuildArch}.txt"))
 
     local overlayDir=$CORE_ROOT
 
@@ -216,13 +216,9 @@ function is_skip_crossgen_test {
 function read_array {
     local theArray=()
 
-    echo "== 1=="
-    echo "== $1 =="
     if [ ! -f "$1" ]; then
         return
     fi
-
-    echo "== 2 =="
 
     # bash in Mac OS X doesn't support 'readarray', so using alternate way instead.
     # readarray -t theArray < "$1"
@@ -231,7 +227,6 @@ function read_array {
         if [[ $line != "#"* ]]; then
             theArray[${#theArray[@]}]=$line
         fi
-        echo "== $line =="
     done < "$1"
     echo ${theArray[@]}
 }
